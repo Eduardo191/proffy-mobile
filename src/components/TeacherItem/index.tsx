@@ -6,31 +6,52 @@ import { RectButton } from 'react-native-gesture-handler'
 import heartOutlineIcon from '../../assets/images/icons/heart-outline.png'
 import unfavoriteIcon from '../../assets/images/icons/unfavorite.png'
 import whatsappIcon from '../../assets/images/icons/whatsapp.png'
+import api from '../../services/api'
 
-function TeacherItem() {
+export interface Teacher {
+  avatar: string;
+  bio: string;
+  id: number;
+  cost: number;
+  name: string;
+  subject: string;
+  whatsapp: string;
+}
+
+interface TeacherItemProps {
+  teacher: Teacher;
+}
+
+const TeacherItem: React.FC<TeacherItemProps> = ({ teacher }) => {
+  function createNewConnection() {
+    api.post('/connections', {
+      user_id: teacher.id
+    })
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.profile}>
         <Image 
           style={styles.avatar}
-          source={{ uri: 'https://avatars2.githubusercontent.com/u/52423589?s=460&u=17dc5065039746701c505823557a30c641bad0a1&v=4' }}
+          source={{ uri: teacher.avatar }}
         />
 
         <View style={styles.profileInfo}>
-          <Text style={styles.name}>Eduardo Ferreira</Text>
-          <Text style={styles.subject}>Matemática</Text>
+          <Text style={styles.name}>{teacher.name}</Text>
+          <Text style={styles.subject}>{teacher.subject}</Text>
         </View>
 
       </View>
 
       <Text style={styles.bio}>
-        Professor de Matemática
+        {teacher.bio}
       </Text>
 
       <View style={styles.footer}>
         <Text style={styles.price}>
           Preço/hora {'   '}
-          <Text style={styles.priceValue}>R$ 20,00</Text> 
+          <Text style={styles.priceValue}>{teacher.cost}</Text> 
         </Text>
 
         <View style={styles.buttonsContainer}>
@@ -39,7 +60,7 @@ function TeacherItem() {
             <Image source={unfavoriteIcon}/>
           </RectButton>
 
-          <RectButton style={styles.contactButton}>
+          <RectButton onPress={createNewConnection} style={styles.contactButton}>
             <Image source={whatsappIcon}/>
             <Text style={styles.contactButtonText}>Entrar em contato</Text>
           </RectButton>

@@ -1,14 +1,32 @@
 import React, { useState } from 'react'
-import { View, ScrollView, Text, TextInput } from 'react-native'
+import { View, ScrollView, Text, TextInput, Picker } from 'react-native'
 import styles from './styles'
 
 import PageHeader from '../../components/PageHeader'
-import TeacherItem from '../../components/TeacherItem'
+import TeacherItem, { Teacher } from '../../components/TeacherItem'
 import { BorderlessButton, RectButton } from 'react-native-gesture-handler'
 import { Feather } from '@expo/vector-icons'
+import api from '../../services/api'
 
 function TeacherList() {
   const [isFiltersVisible, setIsFiltersVisisble] = useState(false)
+
+  const [teachers, setTeachers] = useState([])
+  const [subject, setSubject] = useState('')
+  const [week_day, setWeekDay] = useState('')
+  const [time, setTime] = useState('')
+
+  async function searchTeachers() {
+    const response = await api.get('/classes', {
+      params: {
+        subject,
+        week_day,
+        time
+      }
+    })
+
+    setTeachers(response.data)
+  }
 
   return(
     <View style={styles.container}>
@@ -23,33 +41,53 @@ function TeacherList() {
         { isFiltersVisible && (
           <View style={styles.searchForm}>
             <Text style={styles.label}>Matéria</Text>
-            <TextInput
-              placeholderTextColor="#c1bcc"
+            <Picker 
               style={styles.input}
-              placeholder="Qual a matéria?" 
-            />
+              selectedValue={subject}
+              onValueChange={(itemValue, itemIndex) => setSubject(itemValue)}
+            >
+              <Picker.Item label="Artes" value="Artes" />
+              <Picker.Item label="Biologia" value="Biologia" />
+              <Picker.Item label="Matemática" value="Matemática" />
+              <Picker.Item label="Ciências" value="Ciências" />
+              <Picker.Item label="Física" value="Física" />
+              <Picker.Item label="Química" value="Química" />
+              <Picker.Item label="Português" value="Português" />
+              <Picker.Item label="História" value="História" />
+              <Picker.Item label="Geografia" value="Geografia" />
+            </Picker>
 
             <View style={styles.inputGroup}>
               <View style={styles.inputBlock}>
                 <Text style={styles.label}>Dia da semana</Text>
-                <TextInput
-                  placeholderTextColor="#c1bcc"
+                <Picker
                   style={styles.input}
-                  placeholder="Qual o dia?" 
-                />  
+                  selectedValue={week_day}
+                  onValueChange={(itemValue, itemIndex) => setWeekDay(itemValue)}
+                >
+                  <Picker.Item label="Domingo" value="0" />
+                  <Picker.Item label="Segunda-feira" value="1" />
+                  <Picker.Item label="Terça-feira" value="2" />
+                  <Picker.Item label="Quarta-feira" value="3" />
+                  <Picker.Item label="Quinta-feira" value="4" />
+                  <Picker.Item label="Sexta-feira" value="5" />
+                  <Picker.Item label="Sábado" value="6" />
+                </Picker>  
               </View>
 
               <View style={styles.inputBlock}>
                 <Text style={styles.label}>Horário</Text>
                 <TextInput
                   placeholderTextColor="#c1bcc"
+                  value={time}
+                  onChangeText={(text) => setTime(text)}
                   style={styles.input}
                   placeholder="Qual o horário?" 
                 />  
               </View>
             </View>
 
-            <RectButton style={styles.submitButton}>
+            <RectButton onPress={searchTeachers} style={styles.submitButton}>
               <Text style={styles.submitButtonText}>Filtrar</Text>
             </RectButton>
           </View>
@@ -63,12 +101,7 @@ function TeacherList() {
           paddingBottom: 16
         }}
       >
-        <TeacherItem />
-        <TeacherItem />
-        <TeacherItem />
-        <TeacherItem />
-        <TeacherItem />
-        <TeacherItem />
+        {teachers.map((teacher: Teacher) => <TeacherItem key={teacher.id} teacher={teacher}/>)}
       </ScrollView>
     </View>
   )
